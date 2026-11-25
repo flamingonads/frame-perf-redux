@@ -27,6 +27,9 @@ constexpr uint32_t kSelfMs = 2000;
 constexpr uint32_t kSceneAppMs = 5000;  // a safety net: the scene-app event updates it at once
 constexpr uint32_t kProcessMs = 2000;   // one /proc scan costs 5-8 ms on the Frame
 constexpr uint32_t kNetMs = 2000;
+constexpr uint32_t kSessionMs = 1000;
+constexpr uint32_t kGpuMemMs = 2000;
+constexpr uint32_t kAudioMs = 2000;
 
 const std::vector<MetricDef> kRegistry = {
     // Frame
@@ -198,9 +201,39 @@ const std::vector<MetricDef> kRegistry = {
     {metric::kSelfCpuPct, "general.self_cpu_pct", "%", W::General, S::SelfCost, kSelfMs, T::F32},
     {metric::kSelfRssMib, "general.self_rss_mib", "MiB", W::General, S::SelfCost, kSelfMs, T::F32},
     {metric::kSelfPowerW, "general.self_power_est_w", "W", W::General, S::SelfCost, kSelfMs, T::F32},
+    // Overview
+    {metric::kSessionReprojPct, "session.reprojected_pct", "%", W::Overview, S::SessionStats, kSessionMs, T::F32},
+    {metric::kSessionDropped, "session.dropped", "", W::Overview, S::SessionStats, kSessionMs, T::I32},
+    {metric::kSessionDropRecent, "session.dropped_recently", "", W::Overview, S::SessionStats, kSessionMs, T::Enum},
+    {metric::kSessionSeconds, "session.seconds", "s", W::Overview, S::SessionStats, kSessionMs, T::I32},
+    // Memory
+    {metric::kGpuMemGib, "memory.gpu_gib", "GiB", W::Memory, S::GpuMem, kGpuMemMs, T::F32},
+    // LinkAudio
+    {metric::kAudioOutName, "audio.out_name", "", W::LinkAudio, S::Audio, kAudioMs, T::ShortString},
+    {metric::kAudioOutVolPct, "audio.out_volume_pct", "%", W::LinkAudio, S::Audio, kAudioMs, T::F32},
+    {metric::kAudioOutMuted, "audio.out_muted", "", W::LinkAudio, S::Audio, kAudioMs, T::Enum},
+    {metric::kAudioOutHeadphones, "audio.out_headphones", "", W::LinkAudio, S::Audio, kAudioMs, T::Enum},
+    {metric::kAudioInName, "audio.in_name", "", W::LinkAudio, S::Audio, kAudioMs, T::ShortString},
+    {metric::kAudioInVolPct, "audio.in_volume_pct", "%", W::LinkAudio, S::Audio, kAudioMs, T::F32},
+    {metric::kAudioInMuted, "audio.in_muted", "", W::LinkAudio, S::Audio, kAudioMs, T::Enum},
 };
 
 }  // namespace
+
+const std::vector<WidgetType>& borrowedOwners(WidgetType type) {
+    static const std::vector<WidgetType> kNone;
+    static const std::vector<WidgetType> kOverview = {W::Frame, W::Cpu, W::GpuRam, W::Temp, W::General};
+    static const std::vector<WidgetType> kMemory = {W::GpuRam};
+    static const std::vector<WidgetType> kLinkAudio = {W::Network};
+    static const std::vector<WidgetType> kPowerBattery = {W::Power, W::Battery, W::General};
+    switch (type) {
+        case W::Overview: return kOverview;
+        case W::Memory: return kMemory;
+        case W::LinkAudio: return kLinkAudio;
+        case W::PowerBattery: return kPowerBattery;
+        default: return kNone;
+    }
+}
 
 const std::vector<MetricDef>& registry() {
     return kRegistry;
@@ -262,6 +295,10 @@ const char* widgetName(WidgetType type) {
         case WidgetType::RamItems: return "RAM items";
         case WidgetType::Network: return "Network";
         case WidgetType::General: return "General";
+        case WidgetType::Overview: return "Overview";
+        case WidgetType::Memory: return "Memory";
+        case WidgetType::LinkAudio: return "Wi-Fi & audio";
+        case WidgetType::PowerBattery: return "Power & batteries";
     }
     return "unknown";
 }
@@ -287,6 +324,9 @@ const char* sourceName(SourceId source) {
         case SourceId::SceneApp: return "scene_app";
         case SourceId::Uptime: return "uptime";
         case SourceId::SelfCost: return "self_cost";
+        case SourceId::SessionStats: return "session_stats";
+        case SourceId::GpuMem: return "gpu_mem";
+        case SourceId::Audio: return "audio";
         case SourceId::Count: break;
     }
     return "unknown";

@@ -30,10 +30,15 @@ enum class WidgetType : uint8_t {
     RamItems = 8,  ///< processes by memory
     Network = 9,
     General = 11,
+    // redux panel (local additions, numbered well past upstream's so they never collide)
+    Overview = 20,      ///< fps, clock, game, CPU and GPU strips
+    Memory = 21,        ///< RAM with the GPU's share
+    LinkAudio = 22,     ///< Wi-Fi link and audio devices
+    PowerBattery = 23,  ///< power draw, USB-C input, all batteries
 };
 
 /** Number of WidgetType values including None and the reserved gaps (for arrays indexed by type). */
-constexpr size_t kWidgetTypeCount = 12;
+constexpr size_t kWidgetTypeCount = 24;
 
 /**
  * A source is one thing that gets read (a sysfs file group, a /proc file, an nl80211 query, an OpenVR call).
@@ -59,6 +64,9 @@ enum class SourceId : uint8_t {
     SceneApp,     ///< OpenVR current scene app (also updated on the scene-app event)
     Uptime,       ///< /proc/uptime
     SelfCost,     ///< own CPU time and memory, CPU rails
+    SessionStats, ///< OpenVR GetCumulativeStats for the scene app
+    GpuMem,       ///< debugfs dri gem: memory the GPU holds
+    Audio,        ///< PipeWire default sink and source (pactl)
     Count,
 };
 
@@ -237,7 +245,30 @@ constexpr uint16_t kClock = 1111;  ///< short string, local "YYYY-MM-DD HH:MM:SS
 constexpr uint16_t kSelfCpuPct = 1112;  ///< this overlay's own CPU, % of one core (all threads)
 constexpr uint16_t kSelfRssMib = 1113;
 constexpr uint16_t kSelfPowerW = 1114;  ///< estimate, shown with "≈": own share of busy CPU × CPU rails (apc0-2)
+// Overview (widget 20): the scene app's session, from SteamVR's running totals
+constexpr uint16_t kSessionReprojPct = 2000;    ///< reprojected ÷ presents since the app started (startup and loading left out)
+constexpr uint16_t kSessionDropped = 2001;      ///< i32, dropped frames since the app started
+constexpr uint16_t kSessionDropRecent = 2002;   ///< enum 0 / 1: a frame was dropped since the previous read
+constexpr uint16_t kSessionSeconds = 2003;      ///< i32, since this scene app first showed up
+// Memory (widget 21)
+constexpr uint16_t kGpuMemGib = 2100;           ///< GEM objects resident (part of RAM used)
+// LinkAudio (widget 22)
+constexpr uint16_t kAudioOutName = 2200;        ///< short string, default sink description, shortened
+constexpr uint16_t kAudioOutVolPct = 2201;
+constexpr uint16_t kAudioOutMuted = 2202;       ///< enum 0 / 1
+constexpr uint16_t kAudioOutHeadphones = 2203;  ///< enum 0 / 1: not the headset's own speakers
+constexpr uint16_t kAudioInName = 2204;
+constexpr uint16_t kAudioInVolPct = 2205;
+constexpr uint16_t kAudioInMuted = 2206;
 }  // namespace metric
+
+/**
+ * Widgets that also show metrics owned by other widgets (they don't own them, so the one-owner rule stands).
+ * The scheduler reads those owners' sources for them, and their signature follows those metrics.
+ * @param type a widget type
+ * @return the owners it borrows from (empty for upstream's widgets)
+ */
+const std::vector<WidgetType>& borrowedOwners(WidgetType type);
 
 /** Values of the per-adapter kNetAdapterBand metric. */
 enum class WifiBand : uint32_t { Unknown = 0, Ghz2_4 = 1, Ghz5 = 2, Ghz6 = 3, Ghz60 = 4 };

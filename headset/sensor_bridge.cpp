@@ -1,5 +1,6 @@
 #include "sensor_bridge.h"
 
+#include "extra_sources.h"
 #include "system_metrics.h"
 #include "vr_overlay.h"
 
@@ -32,7 +33,8 @@ SensorBridge::SensorBridge(Sensors& sensors, VrOverlay* vr, frame_perf_overlay::
 std::vector<WidgetType> SensorBridge::allWidgets() {
     return {WidgetType::Frame,    WidgetType::Cpu,      WidgetType::GpuRam,  WidgetType::Power,
             WidgetType::Battery,  WidgetType::Temp,     WidgetType::CpuItems, WidgetType::RamItems,
-            WidgetType::Network,  WidgetType::General};
+            WidgetType::Network,  WidgetType::General,  WidgetType::Overview, WidgetType::Memory,
+            WidgetType::LinkAudio, WidgetType::PowerBattery};
 }
 
 void SensorBridge::registerSources(frame_perf_overlay::Scheduler& scheduler) {
@@ -41,6 +43,32 @@ void SensorBridge::registerSources(frame_perf_overlay::Scheduler& scheduler) {
     scheduler.addSource(SourceId::Controllers, [this](double now, bool) { readControllers(now); });
     scheduler.addSource(SourceId::Processes, [this](double now, bool resumed) { readProcesses(now, resumed); });
     scheduler.addSource(SourceId::SceneApp, [this](double now, bool) { refreshSceneApp(now); });
+    scheduler.addSource(SourceId::SessionStats, [this](double now, bool) { readSession(now); });
+    scheduler.addSource(SourceId::GpuMem, [this](double now, bool) {
+        const double gib = readGpuMemGib();
+        store_.setF32(metric::kGpuMemGib, gib, now, Reason::SensorMissing);
+    });
+    scheduler.addSource(SourceId::Audio, [this](double now, bool) {
+        const AudioDevices a = readAudioDevices();
+        if (!a.valid) {
+            for (uint16_t id : {metric::kAudioOutName, metric::kAudioOutVolPct, metric::kAudioOutMuted,
+                                metric::kAudioOutHeadphones, metric::kAudioInName, metric::kAudioInVolPct,
+                                metric::kAudioInMuted}) {
+                store_.setNa(id, Reason::ReadFailed, now);
+            }
+            return;
+        }
+        const auto putName = [&](uint16_t id, const std::string& s) {
+            if (s.empty()) store_.setNa(id, Reason::NotConnected, now); else store_.setText(id, s, now);
+        };
+        putName(metric::kAudioOutName, a.outName);
+        putName(metric::kAudioInName, a.inName);
+        store_.setF32(metric::kAudioOutVolPct, a.outVolPct >= 0 ? a.outVolPct : kNoValue, now);
+        store_.setF32(metric::kAudioInVolPct, a.inVolPct >= 0 ? a.inVolPct : kNoValue, now);
+        store_.setEnum(metric::kAudioOutMuted, a.outMuted ? 1 : 0, now);
+        store_.setEnum(metric::kAudioOutHeadphones, a.outHeadphones ? 1 : 0, now);
+        store_.setEnum(metric::kAudioInMuted, a.inMuted ? 1 : 0, now);
+    });
 }
 
 void SensorBridge::setProcessOptions(const frame_perf_overlay::Layout& layout) {
@@ -126,6 +154,33 @@ void SensorBridge::refreshSceneApp(double now) {
     } else {
         store_.setText(metric::kSceneAppName, app.name, now);
     }
+}
+
+void SensorBridge::readSession(double now) {
+    SessionCounts c;
+    static constexpr uint16_t kIds[] = {metric::kSessionReprojPct, metric::kSessionDropped,
+                                        metric::kSessionDropRecent, metric::kSessionSeconds};
+    if (vr_ == nullptr || !vr_->readSessionCounts(c)) {
+        for (uint16_t id : kIds) store_.setNa(id, Reason::NoSteamVr, now);
+        return;
+    }
+    if (c.pid == 0) {
+        sessionPid_ = 0;
+        for (uint16_t id : kIds) store_.setNa(id, Reason::NotConnected, now);
+        return;
+    }
+    if (c.pid != sessionPid_) {  // a new game: its own clock and totals
+        sessionPid_ = c.pid;
+        sessionStart_ = now;
+        lastDropped_ = c.dropped;
+    }
+    store_.setF32(metric::kSessionReprojPct,
+                  c.presents > 0 ? 100.0 * static_cast<double>(c.reprojected) / static_cast<double>(c.presents) : 0.0,
+                  now);
+    store_.setI32(metric::kSessionDropped, static_cast<int32_t>(std::min<uint64_t>(c.dropped, INT32_MAX)), now);
+    store_.setEnum(metric::kSessionDropRecent, c.dropped > lastDropped_ ? 1 : 0, now);
+    lastDropped_ = c.dropped;
+    store_.setI32(metric::kSessionSeconds, static_cast<int32_t>(now - sessionStart_), now);
 }
 
 void SensorBridge::readFrameTiming(double now) {

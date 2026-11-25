@@ -198,7 +198,7 @@ void testGeometry() {
         CHECK(a.y + a.h <= b.y);
     }
     // One chip per type, all inside the palette card
-    CHECK(rig.ed.chips().size() == 10);  // the ten widgets; the reserved numbers have no chip
+    CHECK(rig.ed.chips().size() == 14);  // the fourteen widgets; the reserved numbers have no chip
     for (const auto& c : rig.ed.chips()) {
         CHECK(c.second.x >= kPaletteCard.x && c.second.x + c.second.w <= kPaletteCard.x + kPaletteCard.w);
         CHECK(c.second.y >= kPaletteCard.y && c.second.y + c.second.h <= kPaletteCard.y + kPaletteCard.h);

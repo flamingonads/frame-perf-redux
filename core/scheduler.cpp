@@ -93,6 +93,13 @@ void Scheduler::recompute() {
                 if (compact_[k] && fullCardOnly(i)) continue;
                 if (static_cast<size_t>(w) < kWidgetTypeCount && (s.ownerMask & (1u << static_cast<unsigned>(w)))) {
                     ++refs;
+                    continue;
+                }
+                for (const WidgetType b : borrowedOwners(w)) {
+                    if (s.ownerMask & (1u << static_cast<unsigned>(b))) {
+                        ++refs;
+                        break;
+                    }
                 }
             }
         }

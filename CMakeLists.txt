@@ -51,6 +51,7 @@ add_executable(frame-perf-overlay
   headset/sensor_math.cpp
   headset/system_metrics.cpp
   headset/sensor_bridge.cpp
+  headset/extra_sources.cpp
   headset/process_scan.cpp
   headset/hide_rules.cpp
   headset/dump_metrics.cpp

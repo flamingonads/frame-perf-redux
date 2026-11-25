@@ -50,6 +50,11 @@ private:
     frame_perf_overlay::ProcessListsView processView_;
 
     void readFrameTiming(double now);
+    void readSession(double now);
+    // Session (Overview): which app the totals belong to, since when, and the last dropped count
+    uint32_t sessionPid_ = 0;
+    double sessionStart_ = 0.0;
+    uint64_t lastDropped_ = 0;
     void readControllers(double now);
     void readProcesses(double now, bool resumed);
 };

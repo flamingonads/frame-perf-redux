@@ -27,6 +27,10 @@ const KeyName kKeys[] = {
     {WidgetType::RamItems, "ram_items"},
     {WidgetType::Network, "network"},
     {WidgetType::General, "general"},
+    {WidgetType::Overview, "overview"},
+    {WidgetType::Memory, "memory"},
+    {WidgetType::LinkAudio, "link_audio"},
+    {WidgetType::PowerBattery, "power_battery"},
 };
 
 WidgetInstance instance(WidgetType type, bool compact = true) {

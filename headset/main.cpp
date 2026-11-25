@@ -640,6 +640,13 @@ int runDumpPng(const Options& options) {
             if (options.fakeThrottle) applyFakeThrottle(frame, t - start);
             storeFakeFrame(store, frame, t);
             storeFakeControllers(store, options.fakeWarnings, t);
+            // Overview: a game session and its name (no SteamVR here)
+            using namespace frame_perf_overlay::metric;
+            store.setF32(kSessionReprojPct, options.fakeThrottle ? 27.0 : 0.4, t);
+            store.setI32(kSessionDropped, options.fakeThrottle ? 85 : 3, t);
+            store.setEnum(kSessionDropRecent, options.fakeThrottle ? 1 : 0, t);
+            store.setI32(kSessionSeconds, 2520, t);
+            store.setText(kSceneAppName, "Half-Life: Alyx", t);
         }
         if (options.fakeWarnings) storeFakeWarnings(store, t);
         if (!options.fakeWifi.empty()) storeFakeWifi(store, options.fakeWifi, t);

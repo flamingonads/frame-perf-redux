@@ -462,10 +462,16 @@ const char* titleOf(const WidgetInstance& w, const WidgetText& t) {
         case WidgetType::RamItems: return t.ramItems;
         case WidgetType::Network: return t.network;
         case WidgetType::General: return t.general;
+        case WidgetType::Overview: return "Overview";
+        case WidgetType::Memory: return t.language == WidgetLanguage::En ? "Memory" : "メモリ";
+        case WidgetType::LinkAudio: return "Wi-Fi/Audio";
+        case WidgetType::PowerBattery: return t.language == WidgetLanguage::En ? "Batteries" : "電池";
         case WidgetType::None: break;
     }
     return "";
 }
+
+#include "panel_cards.inc"
 
 bool hasGraph(WidgetType type) {
     return type == WidgetType::Frame || type == WidgetType::GpuRam || type == WidgetType::Power ||
@@ -1149,6 +1155,12 @@ uint64_t widgetSignature(const WidgetInstance& w, const WidgetContext& ctx) {
             if (v != nullptr) mix(&v->sampledAt, sizeof(v->sampledAt));
         }
     }
+    for (const WidgetType b : borrowedOwners(w.type)) {
+        for (const uint16_t id : kOwned[static_cast<size_t>(b)]) {
+            const MetricValue* v = value(ctx, id);
+            if (v != nullptr) mix(&v->sampledAt, sizeof(v->sampledAt));
+        }
+    }
     mix(&ctx.thresholds, sizeof(ctx.thresholds));
     mix(&ctx.graphSeconds, sizeof(ctx.graphSeconds));
     mix(&ctx.clockFormat, sizeof(ctx.clockFormat));
@@ -1187,6 +1199,10 @@ int widgetHeight(const WidgetInstance& w, const WidgetContext* ctx) {
             if (more) rows += 3;  // uptime, app, HUD cost
             return static_cast<int>(kTop) + 20 + rows * static_cast<int>(kLineH) + 12;
         }
+        case WidgetType::Overview: return kOverviewH;
+        case WidgetType::Memory: return kMemoryH;
+        case WidgetType::LinkAudio: return kLinkAudioH;
+        case WidgetType::PowerBattery: return kPowerBatteryH;
         case WidgetType::None: break;
     }
     return 0;
@@ -1201,7 +1217,11 @@ void drawWidgetStatic(const Pen& pen, double x, double y, const WidgetInstance& 
     staticCard(pen, x, y, heightOverride > 0 ? heightOverride : widgetHeight(w));
     if (hasGraph(w.type)) staticGraphBed(pen, x, y);
     if (w.type == WidgetType::Frame && moreRows(w)) staticFrameTimesBeds(pen, x, y);
-    staticTitle(pen, x, y, titleOf(w, widgetText(language)));
+    if (w.type == WidgetType::PowerBattery) {
+        staticTitle(pen, x, y, widgetText(language).power);  // the card says Power; the palette says Batteries
+    } else if (w.type != WidgetType::Overview && w.type != WidgetType::LinkAudio) {
+        staticTitle(pen, x, y, titleOf(w, widgetText(language)));
+    }
 }
 
 void pushWidgetHistory(const WidgetInstance& w, const WidgetContext& ctx, WidgetHistory& history) {
@@ -1214,6 +1234,10 @@ void pushWidgetHistory(const WidgetInstance& w, const WidgetContext& ctx, Widget
             history.d.push(ctx.now, f(ctx, kFrameGpuMaxMs), keep);
             break;
         case WidgetType::GpuRam: history.a.push(ctx.now, f(ctx, kGpuBusyPct), keep); break;
+        case WidgetType::Overview:
+            history.c.push(ctx.now, f(ctx, kFrameCpuMaxMs), keep);
+            history.d.push(ctx.now, f(ctx, kFrameGpuMaxMs), keep);
+            break;
         case WidgetType::Power: history.a.push(ctx.now, f(ctx, kPowerVphW), keep); break;
         case WidgetType::Temp:
             history.a.push(ctx.now, f(ctx, kTempCpuC), keep);
@@ -1236,6 +1260,10 @@ void drawWidgetDynamic(const Pen& pen, double x, double y, const WidgetInstance&
         case WidgetType::RamItems: drawProcessList(pen, x, y, w, ctx); break;
         case WidgetType::Network: drawNetwork(pen, x, y, w, ctx); break;
         case WidgetType::General: drawGeneral(pen, x, y, w, ctx); break;
+        case WidgetType::Overview: drawOverview(pen, x, y, ctx, history); break;
+        case WidgetType::Memory: drawMemory(pen, x, y, ctx); break;
+        case WidgetType::LinkAudio: drawLinkAudio(pen, x, y, ctx); break;
+        case WidgetType::PowerBattery: drawPowerBattery(pen, x, y, ctx); break;
         case WidgetType::None: break;
     }
 }

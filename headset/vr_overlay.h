@@ -54,6 +54,14 @@ struct VrEvents {
     }
 };
 
+/** SteamVR's running totals for the scene app (IVRCompositor::GetCumulativeStats). */
+struct SessionCounts {
+    uint32_t pid = 0;            ///< the process these totals belong to
+    uint64_t presents = 0;       ///< frames shown, startup and loading left out
+    uint64_t reprojected = 0;
+    uint64_t dropped = 0;
+};
+
 /** The app drawing the scene (IVRApplications). */
 struct SceneApp {
     uint32_t pid = 0;  ///< 0 = none (the compositor is showing)
@@ -206,6 +214,13 @@ public:
      * @return false when not connected
      */
     bool readSceneApp(SceneApp& app) const;
+
+    /**
+     * Reads SteamVR's running frame totals for the current scene app.
+     * @param counts the result
+     * @return false when not connected
+     */
+    bool readSessionCounts(SessionCounts& counts) const;
 
     /**
      * 診断用: 新しく届いたフレームの生のタイミング（フレーム番号・表示回数・再投影の印など）を

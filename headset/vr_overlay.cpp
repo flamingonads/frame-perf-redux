@@ -683,6 +683,20 @@ ControllerStatus VrOverlay::readControllers() {
     return status;
 }
 
+bool VrOverlay::readSessionCounts(SessionCounts& counts) const {
+    counts = SessionCounts();
+    if (!connected_ || vr::VRCompositor() == nullptr) return false;
+    vr::Compositor_CumulativeStats s {};
+    vr::VRCompositor()->GetCumulativeStats(&s, sizeof(s));
+    const auto minus = [](uint64_t total, uint64_t a, uint64_t b) { return total > a + b ? total - a - b : 0; };
+    counts.pid = s.m_nPid;
+    counts.presents = minus(s.m_nNumFramePresents, s.m_nNumFramePresentsOnStartup, s.m_nNumFramePresentsLoading);
+    counts.reprojected =
+        minus(s.m_nNumReprojectedFrames, s.m_nNumReprojectedFramesOnStartup, s.m_nNumReprojectedFramesLoading);
+    counts.dropped = minus(s.m_nNumDroppedFrames, s.m_nNumDroppedFramesOnStartup, s.m_nNumDroppedFramesLoading);
+    return true;
+}
+
 bool VrOverlay::readSceneApp(SceneApp& app) const {
     app = SceneApp();
     if (!connected_ || vr::VRApplications() == nullptr) return false;
