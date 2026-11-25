@@ -287,7 +287,6 @@ void drawOverviewStrip(const Pen& pen, double x, double y, double w, bool gpu, c
     GraphArea area {gx, gy, gw, gh, 0.0, maxV, ctx.now, static_cast<double>(std::max(1, ctx.graphSeconds))};
     if (budgetMs > 0) drawGuide(pen, area, budgetMs, kTextMuted);
     const Color c = gpu ? kGpu : kAccent;
-    if (gpu) drawSeriesFill(pen, area, history, kGpu, kGpuFillAlpha);
     const double warn = budgetMs > 0 ? budgetMs * th.frameWarnRatio : 1e9;
     const double crit = budgetMs > 0 ? budgetMs * th.frameCritRatio : 1e9;
     drawLevelSeries(pen, area, history, c, warn, crit);
@@ -475,7 +474,7 @@ void drawLinkAudio(const Pen& pen, double x, double y, const WidgetContext& ctx)
     if (i(ctx, kAudioOutHeadphones) != 0) iconHeadphones(pen, ax + 10, l1 - 6, kText);
     else iconSpeaker(pen, ax + 10, l1 - 5, kText);
     const bool outMuted = i(ctx, kAudioOutMuted) != 0;
-    const std::string vol = outMuted ? "Muted" : (ok(ctx, kAudioOutVolPct) ? num(f(ctx, kAudioOutVolPct), 0) + " %" : "");
+    const std::string vol = outMuted ? "Muted" : "";  // no volume, only a mute note
     const double volW = pen.measure(vol, 14);
     pen.text(ax + halfW - 10, l1, vol, 14, outMuted ? kDanger : kTextMuted, false, true);
     pen.text(ax + 32, l1, ellipsize(pen, ok(ctx, kAudioOutName) ? text(ctx, kAudioOutName) : "--", 16,
@@ -494,7 +493,24 @@ void drawLinkAudio(const Pen& pen, double x, double y, const WidgetContext& ctx)
 
 // ---- Power & batteries ----
 
-void drawPowerBattery(const Pen& pen, double x, double y, const WidgetContext& ctx) {
+/**
+ * The weak-charger warning: plugged in, yet the battery has been giving power for the last 15 s and is not nearly
+ * full. Near full the charger regulates in and out (5-11 W at 99 %), which would flash the warning on and off.
+ */
+bool sustainedDrain(const History& battW, double pct, double now) {
+    if (!std::isnan(pct) && pct >= 95.0) return false;
+    int n = 0;
+    double first = now;
+    for (const auto& p : battW.points()) {
+        if (p.t < now - 15.0) continue;
+        if (std::isnan(p.v) || p.v >= -0.3) return false;
+        first = std::min(first, p.t);
+        ++n;
+    }
+    return n >= 2 && now - first >= 9.0;
+}
+
+void drawPowerBattery(const Pen& pen, double x, double y, const WidgetContext& ctx, const WidgetHistory& h) {
     const Thresholds& th = ctx.thresholds;
     const double lx = x + 14, r = x + kCardW - 14;
     const double draw = f(ctx, kPowerVphW);
@@ -518,7 +534,7 @@ void drawPowerBattery(const Pen& pen, double x, double y, const WidgetContext& c
         pen.text(r - w + 34, pillTop + 18, s, 15, kTextMuted);
     } else {
         const double inW = f(ctx, kBatteryInputW);
-        const bool draining = !std::isnan(battW) && battW < -0.3 && !full;
+        const bool draining = !full && sustainedDrain(h.a, f(ctx, kBatteryPct), ctx.now);
         std::string type = text(ctx, kBatteryUsbType);
         const std::string head = "USB-C " + (type.empty() ? std::string("") : type + " ") + "· ";
         const std::string val = std::isnan(inW) ? "--" : num(inW, 1) + " W";

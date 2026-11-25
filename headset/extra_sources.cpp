@@ -107,6 +107,7 @@ AudioDevices readAudioDevices() {
             const JsonValue* mute = sink->get("mute");
             d.outMuted = mute != nullptr && mute->isBool() && mute->boolean;
             d.outHeadphones = sinkName->text.find("platform-sound") == std::string::npos;
+            if (!d.outHeadphones) d.outName = "Speaker";  // the headset's own speakers
         }
     }
     if (sourceName != nullptr && sourceName->isString()) {

@@ -1234,6 +1234,7 @@ void pushWidgetHistory(const WidgetInstance& w, const WidgetContext& ctx, Widget
             history.d.push(ctx.now, f(ctx, kFrameGpuMaxMs), keep);
             break;
         case WidgetType::GpuRam: history.a.push(ctx.now, f(ctx, kGpuBusyPct), keep); break;
+        case WidgetType::PowerBattery: history.a.push(ctx.now, f(ctx, kBatteryPowerW), 20.0); break;
         case WidgetType::Overview:
             history.c.push(ctx.now, f(ctx, kFrameCpuMaxMs), keep);
             history.d.push(ctx.now, f(ctx, kFrameGpuMaxMs), keep);
@@ -1263,7 +1264,7 @@ void drawWidgetDynamic(const Pen& pen, double x, double y, const WidgetInstance&
         case WidgetType::Overview: drawOverview(pen, x, y, ctx, history); break;
         case WidgetType::Memory: drawMemory(pen, x, y, ctx); break;
         case WidgetType::LinkAudio: drawLinkAudio(pen, x, y, ctx); break;
-        case WidgetType::PowerBattery: drawPowerBattery(pen, x, y, ctx); break;
+        case WidgetType::PowerBattery: drawPowerBattery(pen, x, y, ctx, history); break;
         case WidgetType::None: break;
     }
 }
