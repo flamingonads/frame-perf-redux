@@ -646,7 +646,7 @@ int runDumpPng(const Options& options) {
             store.setI32(kSessionDropped, options.fakeThrottle ? 85 : 3, t);
             store.setEnum(kSessionDropRecent, options.fakeThrottle ? 1 : 0, t);
             store.setI32(kSessionSeconds, 2520, t);
-            store.setText(kSceneAppName, "Half-Life: Alyx", t);
+            store.setText(kSceneAppName, options.fakeThrottle ? "The Elder Scrolls V: Skyrim VR" : "Half-Life: Alyx", t);
         }
         if (options.fakeWarnings) storeFakeWarnings(store, t);
         if (!options.fakeWifi.empty()) storeFakeWifi(store, options.fakeWifi, t);

@@ -287,6 +287,7 @@ void drawOverviewStrip(const Pen& pen, double x, double y, double w, bool gpu, c
     GraphArea area {gx, gy, gw, gh, 0.0, maxV, ctx.now, static_cast<double>(std::max(1, ctx.graphSeconds))};
     if (budgetMs > 0) drawGuide(pen, area, budgetMs, kTextMuted);
     const Color c = gpu ? kGpu : kAccent;
+    drawSeriesFill(pen, area, history, c, kGpuFillAlpha);
     const double warn = budgetMs > 0 ? budgetMs * th.frameWarnRatio : 1e9;
     const double crit = budgetMs > 0 ? budgetMs * th.frameCritRatio : 1e9;
     drawLevelSeries(pen, area, history, c, warn, crit);
@@ -369,11 +370,29 @@ void drawOverview(const Pen& pen, double x, double y, const WidgetContext& ctx, 
                                      ? " - " + shortDuration(static_cast<double>(i(ctx, kSessionSeconds)))
                                      : "";
         const double tailW = pen.measure(tail, 15);
-        const std::string name = ellipsize(pen, game, 15, rightW - 20 - tailW);
-        const double nameW = pen.measure(name, 15);
-        const double start = rx + rightW - 10 - tailW - nameW;
-        pen.text(start, ty + 78, name, 15, kText);
-        pen.text(start + nameW, ty + 78, tail, 15, kTextMuted);
+        const double avail = rightW - 28 - tailW;  // 8 px gap before the play time
+        const double nameW = pen.measure(game, 15);
+        const double tailX = rx + rightW - 10 - tailW;
+        if (nameW <= avail) {
+            pen.text(tailX - nameW, ty + 78, game, 15, kText);
+        } else {
+            // Too long: scroll it back and forth inside its space, 2 s pause at each end, 30 px/s.
+            // The panel redraws every update (0.5 s), so it moves in small steps.
+            const double overflow = nameW - avail, speed = 30.0, pause = 2.0;
+            const double run = overflow / speed, period = 2 * (run + pause);
+            const double t = std::fmod(ctx.now, period);
+            double off = 0;
+            if (t < pause) off = 0;
+            else if (t < pause + run) off = (t - pause) * speed;
+            else if (t < 2 * pause + run) off = overflow;
+            else off = overflow - (t - 2 * pause - run) * speed;
+            cairo_save(pen.cr);
+            cairo_rectangle(pen.cr, rx + 10, ty + 60, avail, 24);
+            cairo_clip(pen.cr);
+            pen.text(rx + 10 - std::round(off), ty + 78, game, 15, kText);
+            cairo_restore(pen.cr);
+        }
+        pen.text(tailX, ty + 78, tail, 15, kTextMuted);
     } else {
         pen.text(rx + rightW - 10, ty + 78, "SteamVR", 15, kTextMuted, false, true);
     }
