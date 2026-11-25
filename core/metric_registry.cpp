@@ -29,7 +29,7 @@ constexpr uint32_t kProcessMs = 2000;   // one /proc scan costs 5-8 ms on the Fr
 constexpr uint32_t kNetMs = 2000;
 constexpr uint32_t kSessionMs = 1000;
 constexpr uint32_t kGpuMemMs = 2000;
-constexpr uint32_t kAudioMs = 2000;
+constexpr uint32_t kAudioMs = 5000;
 
 const std::vector<MetricDef> kRegistry = {
     // Frame

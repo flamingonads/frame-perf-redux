@@ -22,7 +22,7 @@ struct AudioDevices {
 double readGpuMemGib();
 
 /**
- * Asks PipeWire (through pactl) for the default sink and source. Spawns pactl, so it's meant for a 2 s source.
+ * Asks PipeWire (through pactl) for the default sink and source. Spawns pactl, so it is read every 5 s.
  * @return the devices (valid = false if pactl failed)
  */
 AudioDevices readAudioDevices();
