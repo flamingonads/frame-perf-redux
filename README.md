@@ -4,7 +4,7 @@
 
 > **A personal fork of [frame-perf-overlay](https://github.com/sasaken1102r/frame-perf-overlay) by sasaken1102r (MIT licence).** All credit for the app goes to the original author. This fork is not affiliated with the original project.
 
-A performance panel for the Steam Frame that runs on the headset itself as an OpenVR overlay. It is built on upstream version 0.4.0.
+My take on a minimalist performance overlay including playspace center marker as a replacement for my favorite features from fpsvr. 
 
 ## What is different from the original
 
