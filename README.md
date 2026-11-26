@@ -1,3 +1,8 @@
+# frame-perf-redux
+
+> **A personal fork of [frame-perf-overlay](https://github.com/sasaken1102r/frame-perf-overlay) by sasaken1102r (MIT licence).** All credit for the app goes to the original author. This version changes the panel to a single column of four cards (Overview, Memory, Wi-Fi/Audio, Batteries) with session reprojection and drop counts, GPU memory, audio device names and battery time estimates, and adds an optional white ring on the floor at the centre of the playspace (toggle in the settings footer). It is built on upstream version 0.4.0 and is not affiliated with the original project. Update checks are off by default in my own setup, so an upstream release can't overwrite this build.
+
+---
 # frame-perf-overlay
 
 A small performance panel for the Steam Frame. It stays in view inside SteamVR and shows the app's frame rate, GPU and CPU load, temperatures, power draw, battery levels and the Steam Link wireless link, so you can see at a glance why a game stutters or the headset gets hot. It runs on the headset itself (aarch64 SteamOS) as an OpenVR overlay.
