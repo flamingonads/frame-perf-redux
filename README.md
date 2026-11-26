@@ -10,6 +10,25 @@ My take on a simpler Steam Frame performance overlay:
 
 Created with AI, because I'm a dummy!
 
+## Install this fork
+
+Open Konsole on the Steam Frame and run:
+
+```sh
+curl -fsSL https://raw.githubusercontent.com/flamingonads/frame-perf-redux/redux/install-redux.sh | sh
+```
+
+The script ([install-redux.sh](install-redux.sh)) downloads the latest release of this fork from GitHub, checks it against the release's `SHA256SUMS`, makes sure the archive holds only plain files, and runs the release's own `install.sh`. No sudo; everything goes into your home folder, so SteamOS updates don't remove it. Run the same command again to update.
+
+- Uninstall: `curl -fsSL https://raw.githubusercontent.com/flamingonads/frame-perf-redux/redux/install-redux.sh | sh -s -- uninstall`
+- Install without autostart: add `-s -- --no-autostart` the same way.
+- By hand: download `frame-perf-overlay-<version>.tar.gz` from [this fork's releases](https://github.com/flamingonads/frame-perf-redux/releases), copy it to the headset, extract it and run `./install.sh`.
+- After installing, the **Update** button in the Perf tab follows this fork's releases.
+
+The original's one-line installer (`frame.sasaken1102s.net`) and releases page install the **original** app, not this fork.
+
+What changed in each version of the fork: [CHANGELOG-redux.md](CHANGELOG-redux.md).
+
 ## What is different from the original
 
 - **One column of four cards** instead of the two-column grid: Overview, Memory, Wi-Fi/Audio and Batteries.
@@ -18,6 +37,7 @@ Created with AI, because I'm a dummy!
 - **Wi-Fi/Audio:** signal, speeds, the current output and microphone, and whether the microphone is live or muted.
 - **Power and batteries:** power draw, USB-C charger state, headset battery with time remaining or to full, and both controller batteries.
 - **Center marker:** an optional white ring on the floor at the center of the playspace, with an On/Off toggle in the settings footer.
+- **Graphs keep recording while the panel is hidden:** while you wear the headset, the frame-time graphs keep filling in the background (nothing is drawn), so the last 60 seconds are there when you look. Only the frame timing is read; the cost measured the same as off. Set `"background_graphs": false` in `config.json` to turn it off.
 
 ![The center ring on the floor](docs/images/redux/in-headset-center-ring.jpg)
 
@@ -55,7 +75,7 @@ The settings tab in the SteamVR dashboard has three pages. The footer holds the 
 
 ## Original README (upstream)
 
-The text below is the original author's README. It describes the stock two-column panel, so the layout, widget list and screenshots differ from this fork. Install, build and reading-the-numbers instructions still apply.
+The text below is the original author's README. It describes the stock two-column panel, so the layout, widget list and screenshots differ from this fork. Build and reading-the-numbers instructions still apply. Its install instructions install the original app: to install this fork, use [Install this fork](#install-this-fork) above.
 
 
 A small performance panel for the Steam Frame. It stays in view inside SteamVR and shows the app's frame rate, GPU and CPU load, temperatures, power draw, battery levels and the Steam Link wireless link, so you can see at a glance why a game stutters or the headset gets hot. It runs on the headset itself (aarch64 SteamOS) as an OpenVR overlay.

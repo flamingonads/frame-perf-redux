@@ -503,7 +503,7 @@ frame_updater::UpdaterConfig makeUpdaterConfig() {
     frame_updater::UpdaterConfig cfg;
     cfg.script = paths::dataHome() + "/frame-perf-overlay/frame-update.sh";
     cfg.app = "frame-perf-overlay";
-    cfg.repo = "sasaken1102r/frame-perf-overlay";
+    cfg.repo = "flamingonads/frame-perf-redux";  // the fork's releases, not the original's
     cfg.currentVersion = FRAME_PERF_OVERLAY_VERSION;
     cfg.assetPattern = "frame-perf-overlay-{version}.tar.gz";
     return cfg;
@@ -520,7 +520,7 @@ frame_updater::UpdateStatus fakeUpdateStatus(const std::string& name) {
         s.state = UpdateState::Available;
         s.latest = std::string(FRAME_PERF_OVERLAY_VERSION) + "-preview";
         s.installable = true;
-        s.url = "https://github.com/sasaken1102r/frame-perf-overlay/releases/tag/v" + s.latest;
+        s.url = "https://github.com/flamingonads/frame-perf-redux/releases/tag/v" + s.latest;
     } else if (name == "manual") {
         s.state = UpdateState::Available;
         s.latest = std::string(FRAME_PERF_OVERLAY_VERSION) + "-preview";
