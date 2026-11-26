@@ -7,6 +7,8 @@
 My take on a simpler Steam Frame performance overlay:
 - Condensed UI for the average gamer.
 - Addition of a playspace center marker (with toggle in settings).
+- Graphs record one minute instead of 60s
+- Graph history is now persistent, even when not looking at the graph for a while
 
 Created with AI, because I'm a dummy!
 
