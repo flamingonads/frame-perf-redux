@@ -282,7 +282,7 @@ private:
     uint64_t panelHandle_ = 0;      ///< vr::VROverlayHandle_t（性能パネル）
     uint64_t dashboardHandle_ = 0;  ///< ダッシュボードの設定パネル
     uint64_t thumbnailHandle_ = 0;  ///< ダッシュボードのサムネイル
-    uint64_t floorRingHandle_ = 0;  ///< white ring on the floor at the playspace centre (redux)
+    uint64_t floorRingHandle_ = 0;  ///< white ring on the floor at the playspace center (redux)
     int settingsHeight_ = 0;
     int vrserverPid_ = -1;
     uint32_t lastFrameIndex_ = 0;

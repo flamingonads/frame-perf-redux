@@ -1,5 +1,5 @@
 // redux panel: four cards (Overview, Memory, Wi-Fi & audio, Power & batteries).
-// Included inside widgets.cpp's anonymous namespace, so it uses the same helpers and colours.
+// Included inside widgets.cpp's anonymous namespace, so it uses the same helpers and colors.
 // Kept in its own file so upstream changes to widgets.cpp merge cleanly.
 
 // ---- Look ----
@@ -54,7 +54,7 @@ std::string shortDuration(double seconds) {
     return b;
 }
 
-/** A frame-time line coloured per segment: normal colour, yellow past warn, red past crit. */
+/** A frame-time line colored per segment: normal color, yellow past warn, red past crit. */
 void drawLevelSeries(const Pen& pen, const GraphArea& area, const History& history, Color c, double warn,
                      double crit) {
     cairo_save(pen.cr);
@@ -420,7 +420,7 @@ void drawMemory(const Pen& pen, double x, double y, const WidgetContext& ctx) {
     pen.text(r, b1, totalText, 15, kTextMuted, false, true);
     pen.text(r - totalW, b1, num(used, 1) + " GB", 16, colorOf(level), false, true);
 
-    // One bar: the GPU's share first, then everything else (fixed colours; only the numbers warn)
+    // One bar: the GPU's share first, then everything else (fixed colors; only the numbers warn)
     const double bx = lx, bw = r - lx, by = y + 60, bh = 14;
     pen.color(kBg);
     pen.roundedRect(bx, by, bw, bh, bh / 2);

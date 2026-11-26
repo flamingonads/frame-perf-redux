@@ -24,7 +24,7 @@ namespace {
 constexpr const char* kOverlayKey = "sasaken.frame-perf-overlay";
 constexpr const char* kOverlayName = "Frame Perf Overlay";
 constexpr const char* kFloorRingKey = "sasaken.frame-perf-overlay.floorring";
-constexpr const char* kFloorRingName = "Floor centre ring";
+constexpr const char* kFloorRingName = "Floor center ring";
 constexpr float kFloorRingDiameterM = 0.40f;
 constexpr float kFloorRingAlpha = 0.1f;
 constexpr int kFloorRingPx = 512;

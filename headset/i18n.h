@@ -42,7 +42,7 @@ struct UiText {
     const char* rowSize;
     const char* rowOpacity;
     const char* rowAutostart;           ///< 自動起動
-    const char* rowFloorRing;           ///< floor centre ring
+    const char* rowFloorRing;           ///< floor center ring
     const char* autostartNextLaunch;    ///< 次回の SteamVR 起動から
     const char* autostartNotInstalled;  ///< 未インストール
     const char* autostartBusy;          ///< 切り替え中

@@ -2,7 +2,7 @@
 
 ![The panel inside the headset](docs/images/redux/in-headset-panel.jpg)
 
-> **A personal fork of [frame-perf-overlay](https://github.com/sasaken1102r/frame-perf-overlay) by sasaken1102r (MIT licence).** All credit for the app goes to the original author. This fork is not affiliated with the original project. 
+> **A personal fork of [frame-perf-overlay](https://github.com/sasaken1102r/frame-perf-overlay) by sasaken1102r (MIT license).** All credit for the app goes to the original author. This fork is not affiliated with the original project. 
 
 My take on a minimalist performance overlay including playspace center marker as a replacement for my favorite features from fpsvr. Created with AI, because I'm a dummy!
 
@@ -13,9 +13,9 @@ My take on a minimalist performance overlay including playspace center marker as
 - **Memory:** RAM use with the GPU share split out.
 - **Wi-Fi/Audio:** signal, speeds, the current output and microphone, and whether the microphone is live or muted.
 - **Power and batteries:** power draw, USB-C charger state, headset battery with time remaining or to full, and both controller batteries.
-- **Centre marker:** an optional white ring on the floor at the center of the playspace, with an On/Off toggle in the settings footer.
+- **Center marker:** an optional white ring on the floor at the center of the playspace, with an On/Off toggle in the settings footer.
 
-![The centre ring on the floor](docs/images/redux/in-headset-centre-ring.jpg)
+![The center ring on the floor](docs/images/redux/in-headset-center-ring.jpg)
 
 ## The panel in different states
 
@@ -39,7 +39,7 @@ These images are written out by the app itself (`--dump-png`), with sample value
 
 ## Settings
 
-The settings tab in the SteamVR dashboard has three pages. The footer holds the language, autostart and centre marker toggles.
+The settings tab in the SteamVR dashboard has three pages. The footer holds the language, autostart and center marker toggles.
 
 ![Placement page](docs/images/redux/settings-placement.png)
 

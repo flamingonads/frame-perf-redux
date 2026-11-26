@@ -1027,7 +1027,7 @@ void SettingsPanel::drawFooter(const Pen& pen, const UiText& text, const Config&
                   installed && !autostart.busy);
 
     x += kFooterSegmentW + 40;
-    // Floor centre ring (config.floorRing)
+    // Floor center ring (config.floorRing)
     x += pen.text(x, centerBaseline(y, kButtonH, labelSize), text.rowFloorRing, labelSize, kTextMuted) + 14;
     placeFooterButton(SettingsAction::RingOn, x, y, kFooterSegmentW / 2, kButtonH);
     placeFooterButton(SettingsAction::RingOff, x + kFooterSegmentW / 2, y, kFooterSegmentW / 2, kButtonH);

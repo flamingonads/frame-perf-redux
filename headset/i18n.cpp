@@ -133,7 +133,7 @@ const UiText kEnglish = {
     // Settings panel
     "Frame Perf Settings", "Panel", ". ", "Panel shown", "Panel hidden",
     "Show", "Language", "Position", "Nudge", "Size", "Opacity",
-    "Autostart", "Centre marker", "Autostart changes apply from the next SteamVR start",
+    "Autostart", "Center marker", "Autostart changes apply from the next SteamVR start",
     "The autostart unit is not installed, so it can't be switched (see \"Autostart\" in the README)",
     "Switching autostart…", "Failed to switch autostart (see the log)",
     "On", "Off",
