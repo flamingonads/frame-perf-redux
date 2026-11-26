@@ -226,12 +226,13 @@ bool loadConfig(const std::string& path, Config& out, std::vector<std::string>& 
 
     Config config;  // 書かれていない項目は既定値
     warnUnknownKeys(root,
-                    {"visible", "update_check", "language", "attachment", "position", "rotation", "left_wrist",
+                    {"visible", "floor_ring", "update_check", "language", "attachment", "position", "rotation", "left_wrist",
                      "right_wrist", "wrist_fade", "wrist_fade_end_deg", "clock_format", "width_m", "alpha",
                      "update_interval_ms", "graph_seconds", "font", "font_bold", "thresholds", "layout",
                      "active_profile"},
                     "", warnings);
     readBool(root, "visible", config.visible, warnings);
+    readBool(root, "floor_ring", config.floorRing, warnings);
     readBool(root, "update_check", config.updateCheck, warnings);
     readString(root, "active_profile", config.activeProfile, warnings);
     std::string language = languageCode(config.language);
@@ -340,12 +341,13 @@ bool saveConfig(const std::string& path, const Config& config, std::string& erro
     std::fprintf(file,
         "{\n"
         "  \"visible\": %s,\n"
+        "  \"floor_ring\": %s,\n"
         "  \"update_check\": %s,\n"
         "  \"language\": \"%s\",\n"
         "  \"attachment\": \"%s\",\n"
         "  \"position\": { \"x\": %.4g, \"y\": %.4g, \"z\": %.4g },\n"
         "  \"rotation\": { \"yaw\": %.4g, \"pitch\": %.4g, \"roll\": %.4g },\n",
-        boolean(config.visible), boolean(config.updateCheck), languageCode(config.language), attachmentName(config.attachment),
+        boolean(config.visible), boolean(config.floorRing), boolean(config.updateCheck), languageCode(config.language), attachmentName(config.attachment),
         config.posX, config.posY, config.posZ, config.yawDeg, config.pitchDeg, config.rollDeg);
     for (const char* key : {"left_wrist", "right_wrist"}) {
         const WristPose& p = key[0] == 'l' ? config.leftWrist : config.rightWrist;
@@ -391,6 +393,7 @@ bool saveConfig(const std::string& path, const Config& config, std::string& erro
 void resetDisplaySettings(Config& config) {
     const Config defaults;
     config.visible = defaults.visible;
+    config.floorRing = defaults.floorRing;
     config.attachment = defaults.attachment;
     config.posX = defaults.posX;
     config.posY = defaults.posY;

@@ -64,7 +64,7 @@ const UiText kJapanese = {
     // 設定パネル
     "Frame Perf 設定", "パネル", "。", "パネル表示中", "パネル非表示",
     "表示", "言語", "位置", "微調整", "大きさ", "透明度",
-    "自動起動", "自動起動の切り替えは次回の SteamVR 起動から効きます",
+    "自動起動", "床の中心マーク", "自動起動の切り替えは次回の SteamVR 起動から効きます",
     "自動起動のユニットが入っていないので切り替えられません（README の「自動起動」を見てね）", "自動起動を切り替え中…",
     "自動起動の切り替えに失敗しました（ログを見てね）",
     "オン", "オフ",
@@ -133,7 +133,7 @@ const UiText kEnglish = {
     // Settings panel
     "Frame Perf Settings", "Panel", ". ", "Panel shown", "Panel hidden",
     "Show", "Language", "Position", "Nudge", "Size", "Opacity",
-    "Autostart", "Autostart changes apply from the next SteamVR start",
+    "Autostart", "Centre marker", "Autostart changes apply from the next SteamVR start",
     "The autostart unit is not installed, so it can't be switched (see \"Autostart\" in the README)",
     "Switching autostart…", "Failed to switch autostart (see the log)",
     "On", "Off",

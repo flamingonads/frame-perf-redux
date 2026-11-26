@@ -25,6 +25,8 @@ enum class SettingsAction {
     ShowOff,
     LanguageJa,
     LanguageEn,
+    RingOn,       ///< floor centre ring on
+    RingOff,      ///< floor centre ring off
     AttachHead,   ///< 固定先を頭に
     AttachLeft,   ///< 固定先を左手（のコントローラー）に
     AttachRight,  ///< 固定先を右手（のコントローラー）に

@@ -343,6 +343,11 @@ void VrOverlay::shutdown() {
 }
 
 void VrOverlay::applyConfig(const Config& config) {
+    if (connected_ && floorRingHandle_ != 0) {
+        vr::IVROverlay* overlay = vr::VROverlay();
+        checkOverlay("floor ring show/hide", config.floorRing ? overlay->ShowOverlay(floorRingHandle_)
+                                                               : overlay->HideOverlay(floorRingHandle_));
+    }
     if (!connected_ || panelHandle_ == 0) return;
     // width_m is one column's width, so the text keeps its size whatever the layout
     configWidthM_ = config.widthM;

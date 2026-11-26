@@ -283,7 +283,7 @@ bool isFacingForward(const Config& config) {
  * @return 同じなら true
  */
 bool sameDisplaySettings(const Config& a, const Config& b) {
-    return a.visible == b.visible && a.language == b.language && a.attachment == b.attachment && a.posX == b.posX &&
+    return a.visible == b.visible && a.floorRing == b.floorRing && a.language == b.language && a.attachment == b.attachment && a.posX == b.posX &&
            a.posY == b.posY && a.posZ == b.posZ && a.yawDeg == b.yawDeg && a.pitchDeg == b.pitchDeg &&
            a.rollDeg == b.rollDeg && !(a.leftWrist != b.leftWrist) && !(a.rightWrist != b.rightWrist) &&
            a.wristFade == b.wristFade && a.wristFadeEndDeg == b.wristFadeEndDeg && a.clockFormat == b.clockFormat &&
@@ -438,6 +438,8 @@ bool applySettingsAction(SettingsAction action, Config& config, double angleStep
         case SettingsAction::Clock12: config.clockFormat = 12; break;
         case SettingsAction::Clock24: config.clockFormat = 24; break;
         case SettingsAction::Reset: resetDisplaySettings(config); break;
+        case SettingsAction::RingOn: config.floorRing = true; break;
+        case SettingsAction::RingOff: config.floorRing = false; break;
         case SettingsAction::LanguageJa: config.language = Language::Ja; break;
         case SettingsAction::LanguageEn: config.language = Language::En; break;
         case SettingsAction::AutostartOn:   // 自動起動は設定ファイルではなく systemd なので呼び出し側で扱う
@@ -579,6 +581,8 @@ std::string SettingsPanel::labelOf(SettingsAction action, const UiText& text) co
     switch (action) {
         case SettingsAction::ShowOn: return text.on;
         case SettingsAction::ShowOff: return text.off;
+        case SettingsAction::RingOn: return text.on;
+        case SettingsAction::RingOff: return text.off;
         case SettingsAction::LanguageJa: return "日本語";
         case SettingsAction::LanguageEn: return "English";
         case SettingsAction::AttachHead: return text.attachHead;
@@ -1021,6 +1025,13 @@ void SettingsPanel::drawFooter(const Pen& pen, const UiText& text, const Config&
                              : (autostart.state == AutostartStatus::State::Disabled ? 1 : -1);
     drawSegmented(pen, text, {SettingsAction::AutostartOn, SettingsAction::AutostartOff}, selected,
                   installed && !autostart.busy);
+
+    x += kFooterSegmentW + 40;
+    // Floor centre ring (config.floorRing)
+    x += pen.text(x, centerBaseline(y, kButtonH, labelSize), text.rowFloorRing, labelSize, kTextMuted) + 14;
+    placeFooterButton(SettingsAction::RingOn, x, y, kFooterSegmentW / 2, kButtonH);
+    placeFooterButton(SettingsAction::RingOff, x + kFooterSegmentW / 2, y, kFooterSegmentW / 2, kButtonH);
+    drawSegmented(pen, text, {SettingsAction::RingOn, SettingsAction::RingOff}, config.floorRing ? 0 : 1, true);
 
     // 終了（赤い枠の控えめなボタン。確認中は赤い塗り）
     const double quitX = kWidth - kPad - kQuitW;

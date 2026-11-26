@@ -47,6 +47,7 @@ struct WristPose {
  */
 struct Config {
     bool visible = true;            ///< false でパネルを隠す（読み取りと描画も止める）
+    bool floorRing = true;          ///< white ring on the floor at the playspace centre (redux)
     bool updateCheck = true;        ///< false で新しい版の自動確認を止める（手動の［確認］は常に使える）
     Language language = systemLanguage();  ///< 画面の文言の言語（"ja" / "en"。既定は Frame のシステム言語）
     Attachment attachment = Attachment::Head;  ///< パネルの固定先（頭・左手・右手）
