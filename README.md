@@ -4,7 +4,11 @@
 
 > **A personal fork of [frame-perf-overlay](https://github.com/sasaken1102r/frame-perf-overlay) by sasaken1102r (MIT license).** All credit for the app goes to the original author. This fork is not affiliated with the original project. 
 
-My take on a minimalist performance overlay including playspace center marker as a replacement for my favorite features from fpsvr. Created with AI, because I'm a dummy!
+My take on a simpler Steam Frame performance overlay:
+- UI adjustments that condense all important information for the average gamer in an easy to read interface.
+- Additional of a playspace center marker (with toggle in settings)
+
+Created with AI, because I'm a dummy!
 
 ## What is different from the original
 
