@@ -1388,6 +1388,13 @@ int runOverlay(const Options& options) {
                 nextPanel = std::min(nextPanel, loopStart);
             }
             demand.editorOpen = settingsVisible;
+            demand.backgroundGraphs = config.backgroundGraphs;
+            if (frame_perf_overlay::recordingInBackground(demand) !=
+                frame_perf_overlay::recordingInBackground(scheduler.demand())) {
+                std::fprintf(stderr, "[demand] %s\n", frame_perf_overlay::recordingInBackground(demand)
+                                                          ? "Recording the frame-time graphs in the background"
+                                                          : "Background graph recording stopped");
+            }
             if (someoneLooking(demand) != someoneLooking(scheduler.demand())) {
                 std::fprintf(stderr, "[demand] %s\n", someoneLooking(demand)
                                                           ? "Someone is looking: reading sources"
@@ -1459,6 +1466,10 @@ int runOverlay(const Options& options) {
                     loopCount = 0;
                 }
             }
+            else if (frame_perf_overlay::recordingInBackground(scheduler.demand())) {
+                // Hidden but worn: the graphs keep filling, nothing is drawn or uploaded
+                renderer.recordHistory(widgetContext(config, store, now, bridge));
+            }
             // Next redraw (don't try to catch up after a delay)
             nextPanel += panelInterval;
             if (nextPanel < now) nextPanel = now;
@@ -1473,7 +1484,10 @@ int runOverlay(const Options& options) {
         // ---- Sleep until the earliest deadline ----
         now = nowSeconds();
         double wakeAt = std::min(nextMetricsTick, scheduler.nextDue(now));
-        if (scheduler.demand().hudShown) wakeAt = std::min(wakeAt, nextPanel);  // no redraws while it's hidden
+        // No redraws while it's hidden; the panel tick still runs while recording the graphs in the background
+        if (scheduler.demand().hudShown || frame_perf_overlay::recordingInBackground(scheduler.demand())) {
+            wakeAt = std::min(wakeAt, nextPanel);
+        }
         if (settingsVisible) {
             const double pollSec =
                 now - lastPointerEvent < kSettingsActiveHoldSec ? kSettingsPollSec : kSettingsIdlePollSec;

@@ -468,6 +468,60 @@ void testCompactToggleKeepsGraphHistory() {
     CHECK(slotPixels(unseen, 0) != slotPixels(steady, 0));
 }
 
+// ---- Background recording: the graphs fill while hidden, as if the panel had been drawn all along ----
+
+void testBackgroundHistoryMatchesDrawn() {
+    const Layout layout = oneWidget(inst(W::Overview, false));
+    GridRenderer drawn(fonts());
+    GridRenderer hidden(fonts());
+    drawn.setLayout(layout);
+    hidden.setLayout(layout);
+    MetricStore store;
+    for (int i = 0; i < 12; ++i) {
+        store.setF32(metric::kFrameCpuMaxMs, 6.0 + (i % 5), kNow + i);
+        store.setF32(metric::kFrameGpuMaxMs, 8.0 + (i % 3), kNow + i);
+        WidgetContext ctx;
+        ctx.store = &store;
+        ctx.now = kNow + i;
+        drawn.render(ctx);
+        if (i == 0 || i == 11) {
+            hidden.render(ctx);
+        } else {
+            hidden.recordHistory(ctx);
+        }
+    }
+    CHECK(slotPixels(hidden, 0) == slotPixels(drawn, 0));
+    // and a renderer that only saw the first and last values draws something else
+    GridRenderer gap(fonts());
+    gap.setLayout(layout);
+    MetricStore first;
+    first.setF32(metric::kFrameCpuMaxMs, 6.0, kNow);
+    first.setF32(metric::kFrameGpuMaxMs, 8.0, kNow);
+    WidgetContext c0;
+    c0.store = &first;
+    c0.now = kNow;
+    gap.render(c0);
+    WidgetContext c11;
+    c11.store = &store;
+    c11.now = kNow + 11;
+    gap.render(c11);
+    CHECK(slotPixels(gap, 0) != slotPixels(drawn, 0));
+}
+
+// A graph fed by a paused source gets no points in the background (they would only repeat a stale value)
+void testBackgroundHistorySkipsOtherGraphs() {
+    WidgetHistory h;
+    MetricStore store;
+    WidgetContext ctx;
+    ctx.store = &store;
+    ctx.now = kNow;
+    CHECK(!pushBackgroundHistory(inst(W::Temp, false), ctx, h));
+    CHECK(!pushBackgroundHistory(inst(W::Power, false), ctx, h));
+    CHECK(h.a.points().empty() && h.b.points().empty());
+    CHECK(pushBackgroundHistory(inst(W::Overview, false), ctx, h));
+    CHECK(h.c.points().size() == 1 && h.d.points().size() == 1);
+}
+
 // ---- Network: the interface being down is "Not connected", not an N/A ----
 
 void testNetworkInterfaceDown() {
@@ -972,6 +1026,8 @@ int main() {
     testPartialRedraw();
     testCompactToggleKeepsGraphHistory();
     testSegmentedPillColours();
+    testBackgroundHistoryMatchesDrawn();
+    testBackgroundHistorySkipsOtherGraphs();
     if (failures == 0) std::printf("render-grid-test: all passed\n");
     return failures == 0 ? 0 : 1;
 }

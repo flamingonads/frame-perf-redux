@@ -1248,6 +1248,12 @@ void pushWidgetHistory(const WidgetInstance& w, const WidgetContext& ctx, Widget
     }
 }
 
+bool pushBackgroundHistory(const WidgetInstance& w, const WidgetContext& ctx, WidgetHistory& history) {
+    if (w.type != WidgetType::Frame && w.type != WidgetType::Overview) return false;
+    pushWidgetHistory(w, ctx, history);
+    return true;
+}
+
 void drawWidgetDynamic(const Pen& pen, double x, double y, const WidgetInstance& w, const WidgetContext& ctx,
                        const WidgetHistory& history) {
     switch (w.type) {

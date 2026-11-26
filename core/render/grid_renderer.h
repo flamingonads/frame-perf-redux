@@ -80,6 +80,13 @@ public:
      */
     bool render(const WidgetContext& ctx);
 
+    /**
+     * Adds graph points without drawing, while the panel is hidden (pushBackgroundHistory). The cards that got
+     * points are redrawn on the next render.
+     * @param ctx values
+     */
+    void recordHistory(const WidgetContext& ctx);
+
     /** @return the last render: cairo's premultiplied ARGB32 (B, G, R, A bytes), stride textureWidth × 4 */
     const uint8_t* pixels() const;
 

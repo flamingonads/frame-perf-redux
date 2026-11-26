@@ -119,6 +119,13 @@ uint64_t widgetSignature(const WidgetInstance& w, const WidgetContext& ctx);
 void pushWidgetHistory(const WidgetInstance& w, const WidgetContext& ctx, WidgetHistory& history);
 
 /**
+ * Adds graph points while the panel is hidden: only the graphs fed by the frame timing (Frame, Overview),
+ * the one source read in the background. Other graphs would only repeat stale values, so they are left alone.
+ * @return true if points were added
+ */
+bool pushBackgroundHistory(const WidgetInstance& w, const WidgetContext& ctx, WidgetHistory& history);
+
+/**
  * Draws the values on top of the static layer.
  * @param pen drawing tools
  * @param x card left

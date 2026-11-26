@@ -84,10 +84,13 @@ void Scheduler::setDemand(const DemandInputs& demand) {
 void Scheduler::recompute() {
     ++recomputes_;
     const bool looking = someoneLooking(demand_);
+    const bool recording = recordingInBackground(demand_);
     for (size_t i = 0; i < kSourceCount; ++i) {
         SourceState& s = sources_[i];
         uint32_t refs = 0;
-        if (looking && s.interval > 0.0) {
+        // While recording in the background only the frame timing is read (it feeds the frame-time graphs)
+        const bool wanted = looking || (recording && i == indexOf(SourceId::FrameTiming));
+        if (wanted && s.interval > 0.0) {
             for (size_t k = 0; k < widgets_.size(); ++k) {
                 const WidgetType w = widgets_[k];
                 if (compact_[k] && fullCardOnly(i)) continue;
@@ -176,10 +179,11 @@ std::string Scheduler::dump(double now) const {
     std::string out;
     char line[256];
     std::snprintf(line, sizeof(line),
-                  "demand: hud_shown=%d hmd_in_use=%d editor_open=%d -> looking=%d "
-                  "(recomputed %llu times)\n",
-                  demand_.hudShown, demand_.hmdInUse, demand_.editorOpen,
-                  someoneLooking(demand_), static_cast<unsigned long long>(recomputes_));
+                  "demand: hud_shown=%d hmd_in_use=%d editor_open=%d background_graphs=%d -> looking=%d "
+                  "recording=%d (recomputed %llu times)\n",
+                  demand_.hudShown, demand_.hmdInUse, demand_.editorOpen, demand_.backgroundGraphs,
+                  someoneLooking(demand_), recordingInBackground(demand_),
+                  static_cast<unsigned long long>(recomputes_));
     out += line;
     out += "enabled widgets:";
     for (WidgetType w : widgets_) {

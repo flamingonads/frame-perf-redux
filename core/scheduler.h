@@ -17,9 +17,11 @@ struct DemandInputs {
     bool hudShown = false;    ///< the HUD overlay is switched on
     bool hmdInUse = false;    ///< HMD activity level isn't standby (off-head reads standby)
     bool editorOpen = false;  ///< the dashboard tab (editor) is visible
+    bool backgroundGraphs = false;  ///< keep the graphs' frame timing read while hidden (background_graphs)
 
     bool operator==(const DemandInputs& o) const {
-        return hudShown == o.hudShown && hmdInUse == o.hmdInUse && editorOpen == o.editorOpen;
+        return hudShown == o.hudShown && hmdInUse == o.hmdInUse && editorOpen == o.editorOpen &&
+               backgroundGraphs == o.backgroundGraphs;
     }
     bool operator!=(const DemandInputs& o) const { return !(*this == o); }
 };
@@ -31,6 +33,16 @@ struct DemandInputs {
  */
 inline bool someoneLooking(const DemandInputs& d) {
     return (d.hudShown && d.hmdInUse) || d.editorOpen;
+}
+
+/**
+ * "Recording in the background" = nobody looking, but the headset is in use and background_graphs is on.
+ * Only the frame-timing source is read then, so the frame-time graphs are full when the panel shows again.
+ * @param d the signals
+ * @return true if the graph history should keep filling without drawing
+ */
+inline bool recordingInBackground(const DemandInputs& d) {
+    return !someoneLooking(d) && d.hmdInUse && d.backgroundGraphs;
 }
 
 /**

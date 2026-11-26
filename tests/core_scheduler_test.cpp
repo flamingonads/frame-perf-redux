@@ -566,6 +566,43 @@ void testRecomputeCount() {
 
 }  // namespace
 
+// Hidden but worn, with background_graphs on: only the frame timing is read, for the graphs
+void testBackgroundGraphs() {
+    Scheduler sched;
+    sched.setEnabledWidgets({W::Overview});
+    DemandInputs d;
+    d.hmdInUse = true;
+    d.backgroundGraphs = true;
+    sched.setDemand(d);
+    CHECK(recordingInBackground(d));
+    CHECK(sched.refCount(S::FrameTiming) > 0);
+    CHECK(sched.refCount(S::CpuLoad) == 0);
+    CHECK(sched.refCount(S::Temps) == 0);
+    CHECK(sched.refCount(S::Battery) == 0);
+    // the setting off: nothing
+    d.backgroundGraphs = false;
+    sched.setDemand(d);
+    CHECK(sched.refCount(S::FrameTiming) == 0);
+    // headset in standby: nothing
+    d.backgroundGraphs = true;
+    d.hmdInUse = false;
+    sched.setDemand(d);
+    CHECK(!recordingInBackground(d));
+    CHECK(sched.refCount(S::FrameTiming) == 0);
+    // shown again: everything as before, not recording
+    d.hmdInUse = true;
+    d.hudShown = true;
+    sched.setDemand(d);
+    CHECK(!recordingInBackground(d));
+    CHECK(sched.refCount(S::FrameTiming) > 0);
+    CHECK(sched.refCount(S::CpuLoad) > 0);
+    // no card with a frame-time graph: nothing in the background
+    d.hudShown = false;
+    sched.setDemand(d);
+    sched.setEnabledWidgets({W::Temp});
+    CHECK(sched.refCount(S::FrameTiming) == 0);
+}
+
 int main() {
     testNothingWithoutWidgets();
     testEnableDisable();
@@ -583,6 +620,7 @@ int main() {
     testDefaultLayoutGeneralIsCompact();
     testResumeRefillKeepsGrid();
     testRecomputeCount();
+    testBackgroundGraphs();
     if (failures) std::printf("%d check(s) failed\n", failures);
     return failures ? 1 : 0;
 }

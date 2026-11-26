@@ -153,6 +153,14 @@ void GridRenderer::buildStatic() {
     ++staticBuilds_;
 }
 
+void GridRenderer::recordHistory(const WidgetContext& ctx) {
+    for (size_t k = 0; k < geometry_.slots.size() && k < histories_.size(); ++k) {
+        if (pushBackgroundHistory(geometry_.slots[k].widget, ctx, histories_[k]) && k < drawn_.size()) {
+            drawn_[k] = false;
+        }
+    }
+}
+
 bool GridRenderer::render(const WidgetContext& ctx) {
     updateGeometry(ctx);
     ensureSurfaces();
