@@ -23,6 +23,12 @@ namespace {
 
 constexpr const char* kOverlayKey = "sasaken.frame-perf-overlay";
 constexpr const char* kOverlayName = "Frame Perf Overlay";
+constexpr const char* kFloorRingKey = "sasaken.frame-perf-overlay.floorring";
+constexpr const char* kFloorRingName = "Floor centre ring";
+constexpr float kFloorRingDiameterM = 0.40f;
+constexpr float kFloorRingAlpha = 0.5f;
+constexpr int kFloorRingPx = 512;
+constexpr float kFloorRingThicknessPx = 28.0f;  // about 2.8 cm at 40 cm across
 constexpr const char* kDashboardKey = "sasaken.frame-perf-overlay.settings";
 constexpr const char* kDashboardName = "Frame Perf";
 // 設定パネルの 1px あたりの大きさ（m）。1200px を 2.8m で出していたときと同じ（前の 1024px / 2.4m ともほぼ同じ）。
@@ -184,6 +190,7 @@ VrOverlay::ConnectResult VrOverlay::connect(int panelWidth, int panelHeight, int
 
     // 4) ダッシュボードの設定パネル（失敗しても性能パネルは動かす）
     createDashboard(settingsWidth, settingsHeight);
+    createFloorRing();
 
     vrserverPid_ = findVrserverPid();
     lastFrameIndex_ = 0;
@@ -211,6 +218,39 @@ bool VrOverlay::connectReadOnly(std::string& message) {
     readOnly_ = true;
     hzCheckedAt_ = -1.0;
     return true;
+}
+
+void VrOverlay::createFloorRing() {
+    vr::IVROverlay* overlay = vr::VROverlay();
+    vr::VROverlayHandle_t handle = vr::k_ulOverlayHandleInvalid;
+    if (!checkOverlay("CreateOverlay(ring)", overlay->CreateOverlay(kFloorRingKey, kFloorRingName, &handle))) return;
+
+    // white ring, soft one-pixel edges, plain (non-premultiplied) RGBA; the 50 % comes from the overlay alpha
+    const int n = kFloorRingPx;
+    std::vector<uint8_t> px(static_cast<size_t>(n) * n * 4, 0);
+    const float c = (n - 1) / 2.0f;
+    const float outer = n / 2.0f - 1.0f;
+    const float inner = outer - kFloorRingThicknessPx;
+    for (int y = 0; y < n; ++y) {
+        for (int x = 0; x < n; ++x) {
+            const float d = std::sqrt((x - c) * (x - c) + (y - c) * (y - c));
+            const float a = std::clamp(std::min(outer - d, d - inner) + 0.5f, 0.0f, 1.0f);
+            uint8_t* p = &px[(static_cast<size_t>(y) * n + x) * 4];
+            p[0] = p[1] = p[2] = 255;
+            p[3] = static_cast<uint8_t>(a * 255.0f + 0.5f);
+        }
+    }
+    bool ok = checkOverlay("SetOverlayRaw(ring)", overlay->SetOverlayRaw(handle, px.data(), n, n, 4));
+    ok = checkOverlay("SetOverlayWidthInMeters(ring)", overlay->SetOverlayWidthInMeters(handle, kFloorRingDiameterM)) && ok;
+    ok = checkOverlay("SetOverlayAlpha(ring)", overlay->SetOverlayAlpha(handle, kFloorRingAlpha)) && ok;
+
+    // Flat on the floor: turn the overlay's face (+Z) to point up (+Y), 5 mm above the origin to stay clear of the floor
+    vr::HmdMatrix34_t m = {{{1.0f, 0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 1.0f, 0.005f}, {0.0f, -1.0f, 0.0f, 0.0f}}};
+    ok = checkOverlay("SetOverlayTransformAbsolute(ring)",
+                      overlay->SetOverlayTransformAbsolute(handle, vr::TrackingUniverseStanding, &m)) && ok;
+    ok = checkOverlay("ShowOverlay(ring)", overlay->ShowOverlay(handle)) && ok;
+    floorRingHandle_ = handle;
+    std::fprintf(stderr, "[VR] floor ring %s\n", ok ? "shown" : "had errors (see above)");
 }
 
 void VrOverlay::createDashboard(int width, int height) {
@@ -263,6 +303,12 @@ void VrOverlay::shutdown() {
 
     // 1) 性能パネルを隠す
     if (panelHandle_ != 0) logShutdownStep("HideOverlay(パネル)", overlay->HideOverlay(panelHandle_));
+    if (floorRingHandle_ != 0) {
+        logShutdownStep("HideOverlay(ring)", overlay->HideOverlay(floorRingHandle_));
+        logShutdownStep("ClearOverlayTexture(ring)", overlay->ClearOverlayTexture(floorRingHandle_));
+        logShutdownStep("DestroyOverlay(ring)", overlay->DestroyOverlay(floorRingHandle_));
+        floorRingHandle_ = 0;
+    }
     // 2) テクスチャを外す（コンポジタがこちらの画像を参照しないようにする）
     if (panelHandle_ != 0) logShutdownStep("ClearOverlayTexture(パネル)", overlay->ClearOverlayTexture(panelHandle_));
     if (dashboardHandle_ != 0) {

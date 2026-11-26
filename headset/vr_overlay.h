@@ -282,6 +282,7 @@ private:
     uint64_t panelHandle_ = 0;      ///< vr::VROverlayHandle_t（性能パネル）
     uint64_t dashboardHandle_ = 0;  ///< ダッシュボードの設定パネル
     uint64_t thumbnailHandle_ = 0;  ///< ダッシュボードのサムネイル
+    uint64_t floorRingHandle_ = 0;  ///< white ring on the floor at the playspace centre (redux)
     int settingsHeight_ = 0;
     int vrserverPid_ = -1;
     uint32_t lastFrameIndex_ = 0;
@@ -321,6 +322,8 @@ private:
      * @param height 設定パネルの高さ（px）
      */
     void createDashboard(int width, int height);
+    /** Always-on white ring flat on the floor at the standing-space origin. Failure is logged and ignored. */
+    void createFloorRing();
 
     /**
      * 診断用（--verbose）: 今の HMD の姿勢から、頭の中心 → パネル上の 3 点（中心・パネル自身の +x 方向に 2cm・
