@@ -1,9 +1,58 @@
 # frame-perf-redux
 
-> **A personal fork of [frame-perf-overlay](https://github.com/sasaken1102r/frame-perf-overlay) by sasaken1102r (MIT licence).** All credit for the app goes to the original author. This version changes the panel to a single column of four cards (Overview, Memory, Wi-Fi/Audio, Batteries) with session reprojection and drop counts, GPU memory, audio device names and battery time estimates, and adds an optional white ring on the floor at the centre of the playspace (toggle in the settings footer). It is built on upstream version 0.4.0 and is not affiliated with the original project. Update checks are off by default in my own setup, so an upstream release can't overwrite this build.
+![The panel inside the headset](docs/images/redux/in-headset-panel.jpg)
+
+> **A personal fork of [frame-perf-overlay](https://github.com/sasaken1102r/frame-perf-overlay) by sasaken1102r (MIT licence).** All credit for the app goes to the original author. This fork is not affiliated with the original project.
+
+A performance panel for the Steam Frame that runs on the headset itself as an OpenVR overlay. It is built on upstream version 0.4.0.
+
+## What is different from the original
+
+- **One column of four cards** instead of the two-column grid: Overview, Memory, Wi-Fi/Audio and Batteries.
+- **Overview:** fps against the refresh rate, session reprojected % and dropped frames, clock, game title and play time, CPU and GPU load with temperature and a 60 second frame-time graph.
+- **Memory:** RAM use with the GPU share split out.
+- **Wi-Fi/Audio:** signal, speeds, the current output and microphone, and whether the microphone is live or muted.
+- **Power and batteries:** power draw, USB-C charger state, headset battery with time remaining or to full, and both controller batteries.
+- **Centre marker:** an optional white ring on the floor at the centre of the playspace, with an On/Off toggle in the settings footer.
+
+![The centre ring on the floor](docs/images/redux/in-headset-centre-ring.jpg)
+
+## The panel in different states
+
+These images are written out by the app itself (`--dump-png`), with sample values.
+
+| Normal | Frame rate dropping |
+|---|---|
+| ![Normal](docs/images/redux/panel-normal.png) | ![Frame rate dropping](docs/images/redux/panel-fps-drop.png) |
+
+| Throttled, thermal limit and low batteries | Charging |
+|---|---|
+| ![Throttled with warnings](docs/images/redux/panel-throttled-warnings.png) | ![Charging](docs/images/redux/panel-charging.png) |
+
+| On battery | Home Wi-Fi |
+|---|---|
+| ![On battery](docs/images/redux/panel-on-battery.png) | ![Home Wi-Fi](docs/images/redux/panel-wifi-home.png) |
+
+| Wi-Fi not connected |
+|---|
+| ![Wi-Fi not connected](docs/images/redux/panel-wifi-none.png) |
+
+## Settings
+
+The settings tab in the SteamVR dashboard has three pages. The footer holds the language, autostart and centre marker toggles.
+
+![Placement page](docs/images/redux/settings-placement.png)
+
+![Layout page](docs/images/redux/settings-layout.png)
+
+![Profiles page](docs/images/redux/settings-profiles.png)
 
 ---
-# frame-perf-overlay
+
+## Original README (upstream)
+
+The text below is the original author's README. It describes the stock two-column panel, so the layout, widget list and screenshots differ from this fork. Install, build and reading-the-numbers instructions still apply.
+
 
 A small performance panel for the Steam Frame. It stays in view inside SteamVR and shows the app's frame rate, GPU and CPU load, temperatures, power draw, battery levels and the Steam Link wireless link, so you can see at a glance why a game stutters or the headset gets hot. It runs on the headset itself (aarch64 SteamOS) as an OpenVR overlay.
 
