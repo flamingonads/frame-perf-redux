@@ -458,6 +458,8 @@ void storeFakeWarnings(frame_perf_overlay::MetricStore& st, double now) {
     st.setF32(kBatteryPct, 12.0, now);
     st.setEnum(kBatteryStatus, static_cast<uint32_t>(frame_perf_overlay::BatteryStatus::Discharging), now);
     st.setEnum(kBatteryChargerOnline, 0, now);
+    st.setEnum(kBatteryPlugged, 0, now);
+    st.setI32(kBatteryTimeToEmptyS, 25 * 60, now);
     st.setEnum(kNetInterfaceUp, 1, now);
     st.setEnum(kNetConnected, 1, now);
     st.setEnum(kNetHomeWifi, 0, now);

@@ -590,8 +590,8 @@ void drawPowerBattery(const Pen& pen, double x, double y, const WidgetContext& c
     double bx = lx + 28;
     bx += drawToneBattery(pen, bx, cy, pct, levelOf(pct, th.batteryWarnPct, th.batteryCritPct, true), charging, 60);
     std::string left;
-    if (charging && ok(ctx, kBatteryTimeToFullS)) left = shortDuration(f(ctx, kBatteryTimeToFullS)) + " to full";
-    else if (!plugged && ok(ctx, kBatteryTimeToEmptyS)) left = shortDuration(f(ctx, kBatteryTimeToEmptyS)) + " remaining";
+    if (charging && ok(ctx, kBatteryTimeToFullS)) left = shortDuration(static_cast<double>(i(ctx, kBatteryTimeToFullS))) + " to full";
+    else if (!plugged && ok(ctx, kBatteryTimeToEmptyS)) left = shortDuration(static_cast<double>(i(ctx, kBatteryTimeToEmptyS))) + " remaining";
     if (!left.empty() && left[0] != ' ') pen.text(bx + 6, cy + 5, left, 14, kTextMuted);
 
     const double lp = f(ctx, kCtrlLeftPct), rp = f(ctx, kCtrlRightPct);
